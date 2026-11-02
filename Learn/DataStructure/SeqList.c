@@ -33,23 +33,70 @@ int initSeqList(Arraylist list) //传入的参数一定要是结构体的指针
 }
 
 //2.插入元素(数组下标+1=位序),核心思想搬元素
-void insertSeqList(Arraylist list, ElementType item, int index)
+int insertSeqList(Arraylist list, ElementType item, int index)
 {
+    //判断位序的合法性
+    if (index < 1 || index > list->length + 1) return 0; //判断位序的合法性
+    if (list->size == list->length)
+    {
+        ElementType* newArray = realloc(list->array, sizeof(ElementType) * list->length << 1); //扩展原来的内存为2倍
+        if (newArray == NULL) return 0;
+        list->array = newArray;
+        list->length = list->length << 1;
+    };
     for (int i = list->size; i > index - 1; --i)
     {
         list->array[i] = list->array[i - 1];
     }
-        list->array[index - 1] = item;
-        list->size++;
+    list->array[index - 1] = item;
+    list->size++;
+    return 1;
 }
 
-//3.打印线性表元素
+//打印线性表元素
 void printSeqList(Arraylist list)
 {
     for (int i = 0; i < list->size; ++i)
     {
-        printf("%d\n", list->array[i]);
+        printf("%d ", list->array[i]);
     }
+}
+
+//3.删除元素,后一个元素覆盖前一个被删除的元素
+int deleteSeqList(Arraylist list, int index) //index是位序,默认从1开始
+{
+    if (index < 1 || index > list->size) return 0;
+    for (int i = index - 1; i < list->size - 1; ++i) list->array[i] = list->array[i + 1];
+    list->size--;
+}
+
+//4.获取线性表长度
+int sizeSeqList(Arraylist list)
+{
+    return list->size;
+}
+
+//5.获取指定位置元素
+//第一种方式:返回的是地址值,需要解引才能获取值
+int* getSeqList(Arraylist list, int index)
+{
+    if (index < 1 || index > list->size) return 0;
+    return &list->array[index - 1];
+}
+
+int getSeqList2(Arraylist list, int index)
+{
+    return list->array[index - 1];
+}
+
+//6.寻找元素出现的位置,返回位序
+int findSeqList(Arraylist list, ElementType item)
+{
+    for (int i = 0; i < list->size; ++i)
+    {
+        if (list->array[i] == item) return i + 1; //找到就返回
+    }
+    return -1; //没找到就返回-1
 }
 
 int main(void)
@@ -58,15 +105,25 @@ int main(void)
     if (initSeqList(&list) != 0)
     {
         //1.测试线性表插入功能
-        insertSeqList(&list, 111, 1);
+        for (int i = 1; i <= 20; ++i)
+        {
+            insertSeqList(&list, i * 10, i);
+        }
         printSeqList(&list);
         printf("\n");
-        insertSeqList(&list, 222, 1);
+        printf("%d\n", list.size);
+        //2.测试线性表删除功能
+        for (int i = 1; i < (list.length / 2); ++i)
+        {
+            deleteSeqList(&list, 1);
+        }
         printSeqList(&list);
         printf("\n");
-        insertSeqList(&list, 333, 2);
-        printSeqList(&list);
-        printf("\n");
+        //3.测试获取元素的功能
+        printf("%d\n", *getSeqList(&list, 1));
+        printf("%d\n", getSeqList2(&list, 1));
+        //4.测试寻找元素位置的功能
+        printf("%d\n", findSeqList(&list, 100));
     }
     else
     {
@@ -74,3 +131,5 @@ int main(void)
     }
     return 0;
 }
+//后续问题:顺序表插入,删除,获取元素的复杂度是多少?
+//插入:O(N)元素需要移动,删除:O(N)元素需要移动,获取:O(1)可以通过数组下标访问元素
