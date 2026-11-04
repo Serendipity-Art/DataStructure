@@ -2,7 +2,7 @@
 // Created by serendipity on 2026/11/2.
 //
 /*线性表(Sequential List)功能
- *1.初始化线性表
+ *1.初始化顺序表
  *2.获取指定位置的元素
  *3.获取元素位置
  *4.输入元素
@@ -13,14 +13,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 typedef int ElementType; //设置元素类型为整型
+//自定义一个顺序表(数据结构)
 struct SeqList
-{
-    ElementType* array;
-    int length;
-    int size;
+{   ElementType* array;//定义一个数组
+    int length;//定义数组容量
+    int size;//定义当前数组的长度
 };
-
-typedef struct SeqList* Arraylist;
+typedef struct SeqList* Arraylist;//设置结构体指针的数据类型为Arraylist(数组列表)
 //1.初始化线性表
 int initSeqList(Arraylist list) //传入的参数一定要是结构体的指针
 {
@@ -31,13 +30,12 @@ int initSeqList(Arraylist list) //传入的参数一定要是结构体的指针
     if (list->array == NULL) return 0;
     return 1;
 }
-
 //2.插入元素(数组下标+1=位序),核心思想搬元素
 int insertSeqList(Arraylist list, ElementType item, int index)
 {
-    //判断位序的合法性
+    //判断位序的合法性(位序的范围[1:size])
     if (index < 1 || index > list->length + 1) return 0; //判断位序的合法性
-    if (list->size == list->length)
+    if (list->size == list->length)//当数组长度等于数组容量,需要对数组进行扩容
     {
         ElementType* newArray = realloc(list->array, sizeof(ElementType) * list->length << 1); //扩展原来的内存为2倍
         if (newArray == NULL) return 0;
@@ -77,15 +75,15 @@ int sizeSeqList(Arraylist list)
 }
 
 //5.获取指定位置元素
-//第一种方式:返回的是地址值,需要解引才能获取值
+//第一种方式:返回的是地址值,需要解引才能获取值,array[i]  ≡  *(array + i)
 int* getSeqList(Arraylist list, int index)
 {
     if (index < 1 || index > list->size) return 0;
-    return &list->array[index - 1];
+    return &(list->array[index - 1]);//&array[index-1]==array+index-1,array(指针变量)+index-1,就是目标元素的地址
 }
 
 int getSeqList2(Arraylist list, int index)
-{
+{   if (index < 1 || index > list->size) return 0;
     return list->array[index - 1];
 }
 
