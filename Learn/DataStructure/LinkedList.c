@@ -8,71 +8,127 @@
  *1.初始化链表
  *2.链表插入
  *3.链表删除
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
+ *4.获取对应位置上的元素
+ *5.查找元素位置
+ *6.求链表长度(节点个数)
  */
 #include<stdio.h>
 #include <stdlib.h>
 typedef int ElementType; //定义元素类型
 struct ListNode
 {
-    ElementType element;   //该节点的元素
+    ElementType element; //该节点的元素
     struct ListNode* next; //指向下一个节点的指针(存储下一个节点的地址值)
 };
 
 typedef struct ListNode* Node;
 //1.链表初始化
-void initLinkedList(Node node)
+int initLinkedList(Node node)
 {
     node->next = NULL;
+    return 1;
 }
 
 //2.链表插入,核心:前驱节点的下一个变成插入的节点
-int insertLinkedList(Node head, ElementType element, int index)
+int insertLinkedList(Node prev, ElementType element, int index)
 {
     if (index < 1) return 0; //有边界无法限制
     while (--index != 0)
     {
-        head = head->next;
-        if (head == NULL) return 0; //越界非法位置
+        prev = prev->next;
+        if (prev == NULL) return 0; //越界非法位置
     }
     Node node = malloc(sizeof(struct ListNode));
     if (node == NULL) return 0;
     node->element = element;
-    node->next = head->next;
-    head->next = node;
+    node->next = prev->next;
+    prev->next = node;
     return 1;
 }
 
 //打印链表
-void printLinkedList(Node head)
+void printLinkedList(Node prev)
 {
-    while (head->next != NULL)
-    {   head=head->next;
-        printf("%d ", head->element);
+    while (prev->next != NULL)
+    {
+        prev = prev->next;
+        printf("→%d", prev->element);
     }
+}
+
+//3.节点的删除(操作某个节点,一定是先找前驱节点)
+int deleteLinkedList(Node prev, int index)
+{
+    if (index < 1) return 0;
+    while (--index != 0)
+    {
+        prev = prev->next;
+        if (prev == NULL) return 0; //找到最后的节点了,该节点的指针指向NULL,不需要删除
+    }
+    Node temp = prev->next;
+    prev->next = prev->next->next;
+    free(temp);
+}
+
+//4.获取对应位置的元素
+ElementType getLinkedList(Node prev, int index)
+{
+    if (index < 1) return 0;
+    while (index-- != 0) //这个地方要是index--,不能是--index,否则可能到底最后一个节点,导致元素为空
+    {
+        prev = prev->next;
+    }
+    return prev->element;
+}
+
+//5.查找对应元素的位置
+int findLinkedList(Node prev, ElementType element)
+{
+    prev = prev->next;
+    int i = 1;
+    while (prev != NULL)
+    {
+        //先比较再移动节点
+        if (prev->element == element) return i;
+        i++;
+        prev = prev->next;
+    }
+    return -1;
+}
+
+//6.链表长度(节点个数)
+int sizeLinkedList(Node prev)
+{
+    int size = 0;
+    prev = prev->next;
+    while (prev != NULL)
+    {
+        size++;
+        prev = prev->next;
+    }
+    return size;
 }
 
 int main()
 {
-    struct ListNode head;
+    struct ListNode prev;
+    //1.一定要初始化链表
+    initLinkedList(&prev);
     //2.测试链表的插入
     for (int i = 1; i <= 3; i++)
     {
-        insertLinkedList(&head, i, i);
+        insertLinkedList(&prev, i, i);
     }
-    printLinkedList(&head);
+    //3.测试删除节点
+    deleteLinkedList(&prev, 1);
+    printf("\n");
+    printLinkedList(&prev);
+    //4.获取节点位置的元素
+    printf("\n");
+    printf("%d\n", getLinkedList(&prev, 2));
+    //5.测试寻找元素位置
+    printf("%d\n", findLinkedList(&prev, 3));
+    //6.返回链表长度
+    printf("%d", sizeLinkedList(&prev));
     return 0;
 }
